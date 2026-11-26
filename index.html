@@ -3192,6 +3192,15 @@
       </div>
 
       <div class="action-cards-row" style="margin-top:12px;">
+        <button class="action-card" style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 60%,#1d4ed8 100%);box-shadow:0 4px 18px rgba(37,99,235,0.35);" onclick="window.location.href='panduan.html'">
+          <div class="action-card-top">
+            <div class="action-card-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="action-card-title">Cara Bug</div>
+          </div>
+          <div class="action-card-desc">Panduan Menghubungkan Nomor WhatsApp</div>
+        </button>
         <button class="action-card" style="background:linear-gradient(135deg,#1db954 0%,#17a349 60%,#0f7a34 100%);box-shadow:0 4px 18px rgba(29,185,84,0.35);" onclick="navTo('spotifyPage', 'navSpotify')">
           <div class="action-card-top">
             <div class="action-card-icon">
@@ -3200,15 +3209,6 @@
             <div class="action-card-title">Music Azazel</div>
           </div>
           <div class="action-card-desc">Cari & Putar Lagu Favoritmu Sekarang</div>
-        </button>
-        <button class="action-card" style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 60%,#1d4ed8 100%);box-shadow:0 4px 18px rgba(37,99,235,0.35);" onclick="window.location.href='panduan.html'">
-          <div class="action-card-top">
-            <div class="action-card-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div class="action-card-title">Cara Add Sender</div>
-          </div>
-          <div class="action-card-desc">Panduan Menghubungkan Nomor WhatsApp</div>
         </button>
       </div>
 
@@ -3553,6 +3553,40 @@
   <script>
     let currentUser = "";
     let currentRole = "free";
+    let currentToken = "";
+
+    function getSesiToken() {
+      try { return localStorage.getItem("azazel_sesi_token") || ""; } catch { return ""; }
+    }
+
+    function setSesiToken(token) {
+      try { localStorage.setItem("azazel_sesi_token", token); } catch {}
+    }
+
+    function clearSesiToken() {
+      try { localStorage.removeItem("azazel_sesi_token"); } catch {}
+    }
+
+    async function checkSesiAwal() {
+      const token = getSesiToken();
+      if (!token) return;
+      try {
+        const r = await fetch(API_BASE + "/api/session/verify?token=" + encodeURIComponent(token));
+        const data = await r.json();
+        if (data.ok) {
+          currentToken = token;
+          applyLoginSuccess(data.username, data.role);
+        } else {
+          clearSesiToken();
+        }
+      } catch {
+        clearSesiToken();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      checkSesiAwal();
+    });
 
     function addClickAnim(el, cls) {
       el.classList.remove(cls);
@@ -3650,9 +3684,13 @@
       return username;
     }
 
-    function applyLoginSuccess(username, role) {
+    function applyLoginSuccess(username, role, token) {
       currentUser = username;
       currentRole = role || 'free';
+      if (token) {
+        currentToken = token;
+        setSesiToken(token);
+      }
       const vbUser = document.getElementById('videoBadgeUsername');
       const vbRole = document.getElementById('videoBadgeRole');
       if (vbUser) vbUser.textContent = getDisplayName(currentUser);
@@ -3698,7 +3736,7 @@
                 }
                 return;
               }
-              applyLoginSuccess(email, data.role);
+              applyLoginSuccess(email, data.role, data.token);
             })
             .catch(() => {
               showNotif('error', 'Gagal Memuat', 'Tidak Dapat Login Dengan Google. Coba Ulangi Kembali.', 'Mengerti');
@@ -3761,7 +3799,7 @@
             showNotif('error', 'Password Salah', data.error || 'Password Yang Kamu Masukkan Salah.', 'Mengerti');
             return;
           }
-          applyLoginSuccess(email, data.role);
+          applyLoginSuccess(email, data.role, data.token);
         })
         .catch(() => {
           showNotif('error', 'Gagal', 'Tidak Dapat Memverifikasi Password. Coba Lagi.', 'Mengerti');
@@ -3788,7 +3826,7 @@
             showNotif('error', 'Gagal', data.error || 'Gagal Menyimpan Password.', 'Mengerti');
             return;
           }
-          applyLoginSuccess(email, role);
+          applyLoginSuccess(email, role, data.token);
         })
         .catch(() => {
           showNotif('error', 'Gagal', 'Tidak Dapat Menyimpan Password. Coba Lagi.', 'Mengerti');
@@ -3819,7 +3857,7 @@
             showNotif('error', 'Akses Ditolak', data.error || 'Silahkan Membeli Akses Terlebih Dahulu.', 'Mengerti');
             return;
           }
-          applyLoginSuccess(username, data.role);
+          applyLoginSuccess(username, data.role, data.token);
         })
         .catch(() => {
           showNotif('error', 'Gagal Memuat', 'Tidak Dapat Memuat Data Login. Coba Ulangi Kembali.', 'Mengerti');
@@ -3832,8 +3870,17 @@
     }
 
     function logout() {
+      if (currentToken) {
+        fetch(API_BASE + '/api/session/logout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: currentToken })
+        }).catch(() => {});
+      }
+      currentToken = '';
       currentUser = '';
       currentRole = 'free';
+      clearSesiToken();
       selectedSenderType = null;
       selectedBugValue = null;
       document.querySelectorAll('.sender-type-card').forEach(c => c.classList.remove('selected'));
