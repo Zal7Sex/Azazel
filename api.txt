@@ -1,1 +1,1 @@
-https://large-row-vcr-infections.trycloudflare.com
+https://api.trycloudflare.com
