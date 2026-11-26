@@ -3613,15 +3613,14 @@
         const data = await r.json();
         if (data.ok) {
           currentToken = token;
+          hideSplash();
           applyLoginSuccess(data.username, data.role);
-        } else {
-          clearSesiToken();
-          showPage('loginPage');
+          return;
         }
-      } catch {
-        showPage('loginPage');
-      }
+        clearSesiToken();
+      } catch {}
       hideSplash();
+      showPage('loginPage');
     }
 
     window.addEventListener("DOMContentLoaded", function() {
@@ -3764,16 +3763,8 @@
                 showGooglePasswordPrompt(email, data.role, false);
                 return;
               }
-              if (!data.ok && data.error === 'Password Salah') {
-                showNotif('error', 'Password Salah', 'Password Yang Kamu Masukkan Salah.', 'Mengerti');
-                return;
-              }
               if (!data.ok) {
-                if (data.error) {
-                  showNotif('error', 'Gagal Login', data.error, 'Mengerti');
-                } else {
-                  showGooglePasswordPrompt(email, data.role, true);
-                }
+                showNotif('error', 'Gagal Login', data.error || 'Gagal Login Dengan Google.', 'Mengerti');
                 return;
               }
               applyLoginSuccess(email, data.role, data.token);
