@@ -2461,33 +2461,38 @@
   .page-global-chat {
     display: flex;
     flex-direction: column;
-    max-width: 420px;
-    margin: 0 auto;
+    width: 100%;
     background: #f5f6fa;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    height: 100%;
-    height: -webkit-fill-available;
-    z-index: 1000;
+    z-index: 9999;
     overflow: hidden;
   }
 
   .page-global-chat.hidden {
-    display: none;
+    display: none !important;
+  }
+
+  body.gc-open {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
   }
 
   .gc-header {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    padding: 16px 18px 14px;
+    padding: 14px 18px 14px;
     display: flex;
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
+    flex-grow: 0;
     box-shadow: 0 2px 12px rgba(220,38,38,0.35);
-    padding-top: max(16px, env(safe-area-inset-top, 16px));
+    min-height: 56px;
+    box-sizing: border-box;
   }
 
   .gc-header-back {
@@ -2540,7 +2545,7 @@
   }
 
   .gc-messages {
-    flex: 1;
+    flex: 1 1 0;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 14px 14px 8px;
@@ -2550,6 +2555,7 @@
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     min-height: 0;
+    overscroll-behavior: contain;
   }
 
   .gc-messages::-webkit-scrollbar {
@@ -2707,6 +2713,7 @@
     gap: 10px;
     animation: fadeIn 0.15s ease;
     flex-shrink: 0;
+    flex-grow: 0;
   }
 
   .gc-reply-preview-bar-info {
@@ -2756,10 +2763,12 @@
     align-items: flex-end;
     gap: 8px;
     flex-shrink: 0;
+    flex-grow: 0;
     width: 100%;
     box-sizing: border-box;
     position: relative;
-    z-index: 2;
+    z-index: 10;
+    min-height: 60px;
   }
 
   .gc-attach-btn {
@@ -3056,7 +3065,7 @@
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          Login With Google
+          Continue With Google
         </button>
 
         <div class="login-divider">
@@ -3075,7 +3084,7 @@
 
         <button class="btn btn-primary" onclick="handleLogin()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-          Login With Username
+          Continue With Username
         </button>
       </div>
 
@@ -4466,8 +4475,8 @@
     }
 
     function sambungGcWs() {
-      if (gcWs && gcWs.readyState === WebSocket.OPEN) return;
-      const wsBase = API_BASE || (location.protocol + '//' + location.host);
+      if (gcWs && (gcWs.readyState === WebSocket.OPEN || gcWs.readyState === WebSocket.CONNECTING)) return;
+      const wsBase = (typeof API_BASE !== 'undefined' && API_BASE) ? API_BASE : (location.protocol + '//' + location.host);
       const wsProto = wsBase.startsWith('https') ? 'wss' : 'ws';
       const wsHost = wsBase.replace(/^https?:\/\//, '');
       gcWs = new WebSocket(wsProto + '://' + wsHost + '/ws/chat');
@@ -4509,37 +4518,31 @@
       }
       const page = document.getElementById('globalChatPage');
       page.classList.remove('hidden');
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
+      document.body.classList.add('gc-open');
       ajustGcHeight();
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', ajustGcHeight);
-        window.visualViewport.addEventListener('scroll', ajustGcHeight);
       }
       sambungGcWs();
+      setTimeout(scrollGcBottom, 100);
     }
 
     function tutupGlobalChat() {
-      document.getElementById('globalChatPage').classList.add('hidden');
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
+      const page = document.getElementById('globalChatPage');
+      page.classList.add('hidden');
+      page.style.height = '';
+      document.body.classList.remove('gc-open');
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', ajustGcHeight);
-        window.visualViewport.removeEventListener('scroll', ajustGcHeight);
       }
     }
 
     function ajustGcHeight() {
       const page = document.getElementById('globalChatPage');
       if (!page || page.classList.contains('hidden')) return;
-      if (window.visualViewport) {
-        const vvh = window.visualViewport.height;
-        const vvTop = window.visualViewport.offsetTop;
-        page.style.top = vvTop + 'px';
-        page.style.height = vvh + 'px';
-      } else {
-        page.style.height = window.innerHeight + 'px';
-      }
+      const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      page.style.height = h + 'px';
+      page.style.top = '0px';
     }
 
     function renderRiwayatGc(list) {
@@ -4680,16 +4683,27 @@
       const teks = input.value.trim();
       if (!teks) return;
       if (!gcWs || gcWs.readyState !== WebSocket.OPEN) {
-        showNotif('error', 'Koneksi Terputus', 'WebSocket belum terhubung. Coba lagi.', 'Mengerti');
+        sambungGcWs();
+        const tmpTeks = teks;
+        const tmpReply = gcReplyData ? gcReplyData.id : null;
+        const tryKirim = setInterval(function() {
+          if (gcWs && gcWs.readyState === WebSocket.OPEN) {
+            clearInterval(tryKirim);
+            gcWs.send(JSON.stringify({ type: 'chat_kirim', username: currentUser, teks: tmpTeks, replyTo: tmpReply }));
+          }
+        }, 200);
+        setTimeout(function() { clearInterval(tryKirim); }, 5000);
+        input.value = '';
+        input.style.height = '';
+        batalReply();
         return;
       }
-      const payload = {
+      gcWs.send(JSON.stringify({
         type: 'chat_kirim',
         username: currentUser,
         teks: teks,
         replyTo: gcReplyData ? gcReplyData.id : null
-      };
-      gcWs.send(JSON.stringify(payload));
+      }));
       input.value = '';
       input.style.height = '';
       batalReply();
