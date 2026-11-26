@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Panduan Add Sender</title>
+  <link rel="icon" type="image/jpeg" href="https://ganga--link--ghhzdp9sv8hk.code.run/i/gy4cehptxm.jpg">
+  <style>
+    @font-face {
+      font-family: 'Evolve';
+      src: url('Evolve.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Eternal';
+      src: url('Eternal.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    :root {
+      --white: #ffffff;
+      --bg: #f5f6fa;
+      --surface: #ffffff;
+      --border: #e8eaf0;
+      --text-primary: #1a1d2e;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --danger: #dc2626;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --radius-full: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Evolve', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Eternal', sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 20px;
+      transition: color 0.15s;
+      text-decoration: none;
+    }
+
+    .back-btn:hover { color: var(--accent); }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .page-header-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .page-header-title {
+      font-family: 'Eternal', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .page-header-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .video-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .video-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px 10px;
+      font-family: 'Eternal', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .video-label svg {
+      color: var(--accent);
+    }
+
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      background: #111;
+    }
+
+    .video-wrap video {
+      width: 100%;
+      display: block;
+      max-height: 320px;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .video-error {
+      display: none;
+      padding: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      padding: 24px 22px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-family: 'Eternal', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      flex: 1;
+    }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .step-code {
+      display: inline-block;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    .info-chip {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--accent-light);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-top: 4px;
+    }
+
+    .info-chip svg {
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .info-chip-text {
+      font-size: 12px;
+      color: var(--accent);
+      line-height: 1.6;
+    }
+
+    .warn-chip {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: #fefce8;
+      border: 1px solid #fde047;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+
+    .warn-chip svg { color: #ca8a04; flex-shrink: 0; margin-top: 1px; }
+    .warn-chip-text { font-size: 12px; color: #854d0e; line-height: 1.6; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 14px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <a href="index.html" class="back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Kembali
+    </a>
+
+    <div class="page-header">
+      <div class="page-header-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div>
+        <div class="page-header-title">Cara Add Sender</div>
+        <div class="page-header-sub">Panduan Menghubungkan Nomor WhatsApp Sebagai Pengirim Bug</div>
+      </div>
+    </div>
+
+    <div class="video-card">
+      <div class="video-label">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        Video Tutorial
+      </div>
+      <div class="video-wrap">
+        <video
+          id="tutorialVideo"
+          controls
+          playsinline
+          preload="metadata"
+          src="https://raw.githubusercontent.com/Zal7Sex/Azazel/main/VID-20261126-WA0012.mp4"
+        ></video>
+        <div class="video-error" id="videoError">
+          Video Tidak Dapat Dimuat. Coba Buka Halaman Ini Di Browser Lain Atau Periksa Koneksi Internet Kamu.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Langkah-Langkah
+      </div>
+
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <div class="step-title">Login ke Akun Kamu</div>
+            <div class="step-desc">Pastikan Kamu Sudah Login Ke Akun Azazel Sebelum Menambahkan Sender.</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <div class="step-title">Buka Menu Manage Sender</div>
+            <div class="step-desc">Dari Halaman Utama, Tekan Card <strong>Manage Sender</strong> Atau Ikon WhatsApp Di Navigasi Bawah.</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-text">
+            <div class="step-title">Masukkan Nomor WhatsApp</div>
+            <div class="step-desc">Ketik Nomor WhatsApp Yang Akan Dijadikan Sender. Gunakan Format Internasional Tanpa Spasi Atau Tanda + Dan -.</div>
+            <span class="step-code">Contoh Benar: 6281234567890<br>Contoh Salah: +62 812-3456-7890</span>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-text">
+            <div class="step-title">Tekan Tombol Pair</div>
+            <div class="step-desc">Tekan tombol <strong>ADD SENDER</strong>. Sistem Akan MENGHASILKAN KODE Pairing 8 Digit.</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-text">
+            <div class="step-title">Masukkan Kode di WhatsApp</div>
+            <div class="step-desc">Buka WhatsApp di HP → Setelan → Perangkat Tertaut → Tautkan Perangkat → Tautkan Dengan Nomor Telepon. Masukkan Kode 8 Digit Yang Tampil.</div>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-text">
+            <div class="step-title">Sender Aktif</div>
+            <div class="step-desc">Setelah Berhasil Terhubung, Status Sender Akan Berubah Menjadi <strong>Terhubung</strong> Dan Siap Digunakan.</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="info-chip">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div class="info-chip-text">Setiap Akun Hanya Bisa Menambahkan 1 Sender. Pastikan Nomor Yang Digunakan Aktif Dan Bisa Menerima Kode Pairing.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const vid = document.getElementById('tutorialVideo');
+    const errDiv = document.getElementById('videoError');
+    vid.addEventListener('error', function() {
+      vid.style.display = 'none';
+      errDiv.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
