@@ -3070,7 +3070,15 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Username
           </label>
-          <input type="text" id="usernameInput" placeholder="Masukkan Username..." onkeydown="if(event.key==='Enter')handleLogin()">
+          <input type="text" id="usernameInput" placeholder="Masukkan Username..." onkeydown="if(event.key==='Enter')document.getElementById('passwordInput').focus()">
+        </div>
+
+        <div class="field">
+          <label>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Password
+          </label>
+          <input type="password" id="passwordInput" placeholder="Masukkan Password..." onkeydown="if(event.key==='Enter')handleLogin()">
         </div>
 
         <button class="btn btn-primary" onclick="handleLogin()">
@@ -3623,8 +3631,20 @@
           })
             .then(r => r.json())
             .then(data => {
+              if (data.needSetPassword) {
+                showGooglePasswordPrompt(email, data.role, false);
+                return;
+              }
+              if (!data.ok && data.error === 'Password Salah') {
+                showNotif('error', 'Password Salah', 'Password Yang Kamu Masukkan Salah.', 'Mengerti');
+                return;
+              }
               if (!data.ok) {
-                showNotif('error', 'Gagal Login', data.error || 'Gagal Login Dengan Google.', 'Mengerti');
+                if (data.error) {
+                  showNotif('error', 'Gagal Login', data.error, 'Mengerti');
+                } else {
+                  showGooglePasswordPrompt(email, data.role, true);
+                }
                 return;
               }
               applyLoginSuccess(email, data.role);
@@ -3639,8 +3659,94 @@
       google.accounts.id.prompt();
     }
 
+    function showGooglePasswordPrompt(email, role, hasPassword) {
+      const overlay = document.getElementById('overlay');
+      const wrap = document.getElementById('notifIconWrap');
+      const icon = document.getElementById('notifIcon');
+      const titleEl = document.getElementById('notifTitle');
+      const msgEl = document.getElementById('notifMessage');
+      const btn = document.getElementById('notifBtn');
+
+      wrap.className = 'notif-icon-wrap info';
+      icon.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+
+      if (hasPassword) {
+        titleEl.textContent = 'Masukkan Password';
+        msgEl.innerHTML = 'Akun Google kamu sudah punya password. Masukkan password untuk melanjutkan.<br><br><input type="password" id="googlePasswordInput" placeholder="Masukkan Password..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;outline:none;margin-top:4px;" onkeydown="if(event.key===\'Enter\')submitGooglePassword(\'' + email + '\',\'' + role + '\')"></input>';
+        btn.className = 'notif-btn info';
+        btn.textContent = 'Verifikasi';
+        btn.onclick = function() { submitGooglePassword(email, role); };
+      } else {
+        titleEl.textContent = 'Buat Password';
+        msgEl.innerHTML = 'Akun Google kamu belum punya password. Buat password untuk keamanan akun kamu.<br><br><input type="password" id="googlePasswordInput" placeholder="Buat Password Baru..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;outline:none;margin-top:4px;" onkeydown="if(event.key===\'Enter\')submitGoogleSetPassword(\'' + email + '\',\'' + role + '\')"></input>';
+        btn.className = 'notif-btn info';
+        btn.textContent = 'Simpan Password';
+        btn.onclick = function() { submitGoogleSetPassword(email, role); };
+      }
+
+      overlay.classList.add('show');
+      setTimeout(() => {
+        const inp = document.getElementById('googlePasswordInput');
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function submitGooglePassword(email, role) {
+      const inp = document.getElementById('googlePasswordInput');
+      const password = inp ? inp.value.trim() : '';
+      if (!password) {
+        inp.style.borderColor = 'red';
+        return;
+      }
+      fetch(API_BASE + '/api/auth/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password })
+      })
+        .then(r => r.json())
+        .then(data => {
+          closeNotif();
+          if (!data.ok) {
+            showNotif('error', 'Password Salah', data.error || 'Password Yang Kamu Masukkan Salah.', 'Mengerti');
+            return;
+          }
+          applyLoginSuccess(email, data.role);
+        })
+        .catch(() => {
+          showNotif('error', 'Gagal', 'Tidak Dapat Memverifikasi Password. Coba Lagi.', 'Mengerti');
+        });
+    }
+
+    function submitGoogleSetPassword(email, role) {
+      const inp = document.getElementById('googlePasswordInput');
+      const password = inp ? inp.value.trim() : '';
+      if (!password || password.length < 6) {
+        inp.style.borderColor = 'red';
+        inp.placeholder = 'Minimal 6 Karakter!';
+        return;
+      }
+      fetch(API_BASE + '/api/auth/set-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, password })
+      })
+        .then(r => r.json())
+        .then(data => {
+          closeNotif();
+          if (!data.ok) {
+            showNotif('error', 'Gagal', data.error || 'Gagal Menyimpan Password.', 'Mengerti');
+            return;
+          }
+          applyLoginSuccess(email, role);
+        })
+        .catch(() => {
+          showNotif('error', 'Gagal', 'Tidak Dapat Menyimpan Password. Coba Lagi.', 'Mengerti');
+        });
+    }
+
     function handleLogin() {
       const username = document.getElementById('usernameInput').value.trim();
+      const password = document.getElementById('passwordInput').value.trim();
 
       if (!username) {
         showNotif('error', 'Username Kosong', 'Masukkan Username Terlebih Dahulu.', 'Mengerti');
@@ -3650,10 +3756,14 @@
       fetch(API_BASE + '/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
+        body: JSON.stringify({ username, password })
       })
         .then(r => r.json())
         .then(data => {
+          if (data.needPassword) {
+            showNotif('info', 'Buat Password', 'Akun kamu belum punya password. Hubungi admin untuk membuat password.', 'Mengerti');
+            return;
+          }
           if (!data.ok) {
             showNotif('error', 'Akses Ditolak', data.error || 'Silahkan Membeli Akses Terlebih Dahulu.', 'Mengerti');
             return;
@@ -3678,6 +3788,7 @@
       document.querySelectorAll('.sender-type-card').forEach(c => c.classList.remove('selected'));
       document.querySelectorAll('.bug-card-item').forEach(c => c.classList.remove('selected'));
       document.getElementById('usernameInput').value = '';
+      document.getElementById('passwordInput').value = '';
       hideDashboardNav();
       showPage('loginPage');
     }
