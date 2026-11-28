@@ -717,7 +717,17 @@
 <input type="file" id="wallpaperFileInput" accept="image/*" style="display:none" onchange="handleWallpaperUpload(this)" />
 
 <script>
-  const BASE = ''
+  var BASE = '';
+  var BASE_READY = (async function() {
+    try {
+      const r = await fetch('https://raw.githubusercontent.com/Zal7Sex/Azazel/main/api.txt');
+      const text = await r.text();
+      BASE = text.trim().replace(/\/+$/, '');
+    } catch(e) {
+      BASE = '';
+    }
+  })();
+
   let token = null
   let userRole = null
   let selectedDevice = null
@@ -734,6 +744,7 @@
   }
 
   async function init() {
+    await BASE_READY
     token = getToken()
     userRole = getRole()
     if (!token) {
