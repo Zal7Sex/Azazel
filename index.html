@@ -1219,6 +1219,117 @@
       letter-spacing: 0.04em;
       z-index: 2;
     }
+    
+    .device-control-shortcut-card {
+      width: 100%;
+      border-radius: var(--radius);
+      margin-top: 12px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 55%, #b91c1c 100%);
+      box-shadow: 0 4px 18px rgba(220,38,38,0.38), 0 2px 8px rgba(0,0,0,0.12);
+      border: none;
+      font-family: 'Evolve', sans-serif;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.15s, opacity 0.15s;
+      padding: 0;
+    }
+
+    .device-control-shortcut-card:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .device-control-card-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .device-control-card-bg-circle1 {
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      right: -30px;
+      top: -40px;
+    }
+
+    .device-control-card-bg-circle2 {
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      left: -20px;
+      bottom: -28px;
+    }
+
+    .device-control-card-bg-lines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.025) 20px,
+        rgba(255,255,255,0.025) 21px
+      );
+    }
+
+    .device-control-card-inner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .device-control-card-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #ffffff;
+      backdrop-filter: blur(4px);
+    }
+
+    .device-control-card-text {
+      flex: 1;
+      min-width: 0;
+      z-index: 1;
+    }
+
+    .device-control-card-title {
+      font-family: 'Eternal', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.01em;
+    }
+
+    .device-control-card-desc {
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.80);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .device-control-card-arrow {
+      color: rgba(255,255,255,0.75);
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 1;
+    }
 
     .menu-card-wrap {
       background: var(--surface);
@@ -3219,6 +3330,31 @@
         <div class="profile-video-welcome">Welcome To Azazel System</div>
       </div>
       </div>
+      
+      <button class="device-control-shortcut-card" id="deviceControlCard" onclick="goToDeviceControl()" style="display:none;">
+        <div class="device-control-card-bg">
+          <div class="device-control-card-bg-circle1"></div>
+          <div class="device-control-card-bg-circle2"></div>
+          <div class="device-control-card-bg-lines"></div>
+        </div>
+        <div class="device-control-card-inner">
+          <div class="device-control-card-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+              <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+          </div>
+          <div class="device-control-card-text">
+            <div class="device-control-card-title">Kontrol Device</div>
+            <div class="device-control-card-desc">Kelola Dan Kendalikan Device Android Terdaftar</div>
+          </div>
+          <div class="device-control-card-arrow">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </div>
+      </button>
 
       <div class="action-cards-row" style="margin-top:12px;">
         <button class="action-card" style="background:linear-gradient(135deg,#1db954 0%,#17a349 60%,#0f7a34 100%);box-shadow:0 4px 18px rgba(29,185,84,0.35);" onclick="navTo('spotifyPage', 'navSpotify')">
@@ -3731,10 +3867,12 @@
         currentToken = token;
         setSesiToken(token);
       }
+      localStorage.setItem('role', currentRole);
       const vbUser = document.getElementById('videoBadgeUsername');
       const vbRole = document.getElementById('videoBadgeRole');
       if (vbUser) vbUser.textContent = getDisplayName(currentUser);
       if (vbRole) vbRole.textContent = currentRole.charAt(0).toUpperCase() + currentRole.slice(1);
+      updateDeviceControlCard();
       showPage('menuPage');
       showDashboardNav();
       setActiveNav('navHome');
@@ -3743,6 +3881,26 @@
       }, 600);
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'init', username: currentUser }));
+      }
+    }
+
+    function goToDeviceControl() {
+      var role = localStorage.getItem('role');
+      if (role !== 'vip' && role !== 'owner') {
+        showNotif('error', 'Akses Ditolak', 'Fitur Kontrol Device hanya untuk member VIP dan Owner.', 'Tutup');
+        return;
+      }
+      window.location.href = 'kontrol.html';
+    }
+
+    function updateDeviceControlCard() {
+      var role = localStorage.getItem('role');
+      var card = document.getElementById('deviceControlCard');
+      if (!card) return;
+      if (role === 'vip' || role === 'owner') {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
       }
     }
 
