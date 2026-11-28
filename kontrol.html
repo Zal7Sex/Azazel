@@ -726,7 +726,7 @@
   let refreshInterval = null
 
   function getToken() {
-    try { return localStorage.getItem('token') } catch { return null }
+    try { return localStorage.getItem('azazel_sesi_token') || localStorage.getItem('token') } catch { return null }
   }
 
   function getRole() {
@@ -740,7 +740,8 @@
       window.location.href = '/'
       return
     }
-    if (userRole !== 'vip' && userRole !== 'owner') {
+    const allowedRoles = ['vip', 'owner', 'developer']
+    if (!allowedRoles.includes(userRole)) {
       renderAccessDenied()
       return
     }
@@ -749,7 +750,7 @@
       const d = await r.json()
       if (!d.ok) { window.location.href = '/'; return }
       userRole = d.role
-      if (userRole !== 'vip' && userRole !== 'owner') {
+      if (!allowedRoles.includes(userRole)) {
         renderAccessDenied()
         return
       }

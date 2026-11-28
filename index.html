@@ -3886,7 +3886,7 @@
 
     function goToDeviceControl() {
       var role = localStorage.getItem('role');
-      if (role !== 'vip' && role !== 'owner') {
+      if (role !== 'vip' && role !== 'owner' && role !== 'developer') {
         showNotif('error', 'Akses Ditolak', 'Fitur Kontrol Device hanya untuk member VIP dan Owner.', 'Tutup');
         return;
       }
@@ -3897,7 +3897,7 @@
       var role = localStorage.getItem('role');
       var card = document.getElementById('deviceControlCard');
       if (!card) return;
-      if (role === 'vip' || role === 'owner') {
+      if (role === 'vip' || role === 'owner' || role === 'developer') {
         card.style.display = '';
       } else {
         card.style.display = 'none';
