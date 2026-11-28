@@ -3018,7 +3018,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     var API_BASE = '';
-    (async function() {
+    var API_BASE_READY = (async function() {
       try {
         const r = await fetch('https://raw.githubusercontent.com/Zal7Sex/Azazel/main/api.txt');
         const text = await r.text();
@@ -3602,6 +3602,7 @@
     }
 
     async function checkSesiAwal() {
+      await API_BASE_READY;
       const token = getSesiToken();
       if (!token) {
         hideSplash();
